@@ -1,0 +1,57 @@
+#! /usr/bin/env python3
+
+from twilio.rest import Client
+import sys
+from json import load, dump
+from datetime import datetime, timezone
+from time import asctime, time
+from subprocess import run, PIPE
+import shlex
+import re
+from random import choice, sample
+
+
+if __name__ == "__main__":
+    with open('creds.json', 'r') as creds_file:
+        creds = load(creds_file)
+        account_sid = creds['account_sid']
+        auth_token = creds['auth_token']
+
+    client = Client(account_sid, auth_token)
+
+    names = list(set(map(lambda name: name.strip(), sys.argv[1:])))
+    if len(names) != 5:
+        print('must have 5 players!')
+        sys.exit(1)
+
+    with open('known_players.json', 'r') as known_players_file:
+        players = {k: v for (k, v) in load(known_players_file).items() if k in names}
+
+    unknown_players = set(names) - set(players.keys())
+    if len(unknown_players) > 0:
+        print('unknown player{}: {}'.format('' if len(unknown_players) == 1 else 's', ', '.join(unknown_players)))
+        sys.exit(1)
+
+    mayor = choice(names)
+    wolf, seer = sample(names, 2)
+
+    time_cutoff = datetime.now(timezone.utc)
+
+    whitelisted_numbers = {players[player]['phone'] for player in players.keys() if 'phone' in players[player]}
+
+    while True:
+        messages = client.messages.list()
+        messages = [message for message in messages if message.from_ in whitelisted_numbers and message.date_sent and message.date_sent > time_cutoff]
+
+#inputs = sorted(messages, key=lambda m: m.date_sent)
+#
+#for i in inputs:
+#    b = i.body
+#    if b[:len(run_command)].lower() == run_command.lower():
+#        command = re.sub(u'[\u201c\u201d]', '"', b[len(run_command) + 1:])
+#        try:
+#            result = run(['bash', '-c', command], stdout=PIPE, stderr=PIPE)
+#            send_text(to=i.from_, text='RESULT.OUT:\n{}\n\nRESULT.ERR:\n{}'.format(result.stdout.decode('utf-8'), result.stderr.decode('utf-8')), label='"{}"'.format(command))
+#        except Exception as e:
+#            send_text(to=i.from_, text='RESULT (ERRORED):\n{}'.format(str(e)), label='"{}"'.format(command))
+#
