@@ -14,7 +14,7 @@ if __name__ == "__main__":
     try:
         with open('known_players.json', 'r') as known_players_file:
             known_players = load(known_players_file)
-    except Exception ex:
+    except Exception:
         known_players = {}
 
     player = {'email': args.email}
