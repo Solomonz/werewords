@@ -42,6 +42,11 @@ if __name__ == "__main__":
     while True:
         messages = client.messages.list()
         messages = [message for message in messages if message.from_ in whitelisted_numbers and message.date_sent and message.date_sent > time_cutoff]
+        if len(messages) > 0:
+            word_message = sorted(messages, key=lambda m: m.date_sent, reverse=True)[0]
+            word = i.body.strip()
+            print(word)
+        time_cutoff = datetime.now(timezone.utc)
 
 #inputs = sorted(messages, key=lambda m: m.date_sent)
 #

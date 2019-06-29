@@ -11,8 +11,11 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--phone', help="player's phone number")
     args = parser.parse_args()
     
-    with open('known_players.json', 'r') as known_players_file:
-        known_players = load(known_players_file)
+    try:
+        with open('known_players.json', 'r') as known_players_file:
+            known_players = load(known_players_file)
+    except Exception ex:
+        known_players = {}
 
     player = {'email': args.email}
     if args.phone:
