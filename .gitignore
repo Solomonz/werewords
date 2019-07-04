@@ -1,3 +1,4 @@
 game/
 creds.json
 known_players.json
+__pycache__
